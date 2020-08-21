@@ -1,0 +1,14 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Super Duper Chesseroo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div *ngFor="let row of board$ | async; let y = index" style="font: 3em monospace">
+    <span *ngFor="let piece of row; let x = index" (click)="selectPosition(x, y)">
+      {{piece?.unicodeSymbol || '\u2610'}}
+    </span>
+    <br>
+  </div>
+</ion-content>
