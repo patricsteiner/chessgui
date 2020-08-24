@@ -1,14 +1,18 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Super Duper Chesseroo</ion-title>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-title>Super Duper Chesseroo</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <div *ngFor="let row of board$ | async; let y = index" style="font: 3em monospace">
-    <span *ngFor="let piece of row; let x = index" (click)="selectPosition(x, y)">
-      {{piece?.unicodeSymbol || '\u2610'}}
-    </span>
-    <br>
-  </div>
+    <ng-container *ngIf="boardAndPossibleMoves$ | async as boardAndPossibleMoves">
+        <div *ngFor="let row of boardAndPossibleMoves[0]; let y = index">
+            <div *ngFor="let piece of row; let x = index" (click)="selectPosition(x, y)" class="field"
+                 [class.possibleMove]="contains(boardAndPossibleMoves[1], {x:x,y:y})">
+                {{piece?.unicodeSymbol || '\u2610'}}
+            </div>
+            <br>
+        </div>
+    </ng-container>
+    <button (click)="toggleColor()" style="font-size: 1em; padding: 10px">{{colorDebug}}</button>
 </ion-content>

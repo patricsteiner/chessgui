@@ -14,8 +14,10 @@ export interface Piece {
 }
 
 export interface Position {
-    file: string;
-    rank: number;
+    file?: string;
+    rank?: number;
     x: number;
     y: number;
 }
+
+
