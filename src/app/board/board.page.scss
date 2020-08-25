@@ -1,11 +1,40 @@
 ion-content {
-  font: 4em monospace;
-}
-.field {
-  display: inline-block;
-  width: 70px;
+  font: 80px monospace;
 }
 
-.possibleMove {
-  color: green;
+.board {
+  margin: auto;
+  border: 50px solid #502200;
+  display: inline-grid;
+  grid-gap: 0;
+  grid-template-columns: repeat(8, 100px);
+  grid-template-rows: repeat(8, 100px);;
+  user-select: none;
 }
+
+.field {
+  text-align: center;
+  background: #ffcb97;
+  cursor: pointer;
+  &.white {
+    color: white;
+    text-shadow: 0 0 5px black;
+  }
+  &.black {
+    color: black;
+    text-shadow: 0 0 5px white;
+  }
+  &.odd {
+    background: #b0693a;
+  }
+  &.empty {
+    cursor: default;
+    color: transparent;
+  }
+  &.possibleMove {
+    cursor: pointer;
+    color: #066d30;
+  }
+}
+
+

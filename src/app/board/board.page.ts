@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {ChessBoardService} from "../chess-board.service";
-import {catchError, filter, map, startWith, switchMap} from "rxjs/operators";
-import {combineLatest, merge, of, Subject} from "rxjs";
-import {Position} from "../model";
+import {ChessBoardService} from '../chess-board.service';
+import {catchError, filter, map, startWith, switchMap} from 'rxjs/operators';
+import {combineLatest, merge, of, Subject} from 'rxjs';
+import {Color, Position} from '../model';
 
 @Component({
     selector: 'app-board',
@@ -11,8 +11,10 @@ import {Position} from "../model";
 })
 export class BoardPage implements OnInit {
 
-    colorDebug = "WHITE"
-    toggleColor = () =>  this.colorDebug = this.colorDebug == "WHITE" ? "BLACK" : "WHITE"
+    constructor(private boardService: ChessBoardService) {
+    }
+
+    colorDebug: Color = 'WHITE';
 
     private selectedPosition: Position;
 
@@ -33,14 +35,14 @@ export class BoardPage implements OnInit {
     ).pipe(
         filter(board => !!board),
         map(board => {
-                const matrix = new Array(8)
+                const matrix = new Array(8);
                 for (let i = 0; i < 8; i++) {
-                    matrix[i] = new Array(8)
+                    matrix[i] = new Array(8);
                 }
-                for (let piece of board.pieces) {
-                    matrix[piece.position.y][piece.position.x] = piece
+                for (const piece of board.pieces) {
+                    matrix[piece.position.y][piece.position.x] = piece;
                 }
-                return matrix
+                return matrix;
             }
         )
     );
@@ -60,9 +62,7 @@ export class BoardPage implements OnInit {
     );
 
     boardAndPossibleMoves$ = combineLatest([this.board$, this.possibleMovesForSelectedPosition$]);
-
-    constructor(private boardService: ChessBoardService) {
-    }
+    toggleColor = () =>  this.colorDebug = this.colorDebug === 'WHITE' ? 'BLACK' : 'WHITE';
 
     ngOnInit() {
 

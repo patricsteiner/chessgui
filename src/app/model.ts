@@ -1,4 +1,4 @@
-export type Color = 'WHITE' | 'BLACK'
+export type Color = 'WHITE' | 'BLACK';
 
 export interface ChessBoard {
     turn: Color;
