@@ -8,11 +8,11 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'board',
+    redirectTo: 'game',
     pathMatch: 'full'
   },
   {
-    path: 'board',
+    path: 'game',
     loadChildren: () => import('./board/board.module').then( m => m.BoardPageModule)
   },
 ];

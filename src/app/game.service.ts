@@ -1,28 +1,28 @@
 import {Injectable, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {ChessBoard, Color} from './model';
+import {Game, Player, Position} from './model';
 import {Observable} from 'rxjs';
-import {Position} from './model';
+import {shareReplay} from "rxjs/operators";
 
-const URL = 'http://localhost:8080/';
+const URL = 'http://localhost:8080/game/';
 
 @Injectable({
     providedIn: 'root'
 })
-export class ChessBoardService {
+export class GameService {
 
-    board$ = this.fromEventSource<ChessBoard>(URL + 'board');
+    game$ = this.fromEventSource<Game>(URL + '1').pipe(shareReplay(1));
 
     constructor(private http: HttpClient, private zone: NgZone) {
     }
 
-    move(color: Color, from: Position, to: Position): Observable<ChessBoard> {
-        return this.http.post<ChessBoard>(URL, {color, from, to});
+    applyMove(gameId: string, player: Player, from: Position, to: Position): Observable<Game> {
+        return this.http.post<Game>(URL + gameId, {player, from, to});
     }
 
-    possibleMoves(from: Position): Observable<Position[]> {
+    possibleMoves(gameId: string, from: Position): Observable<Position[]> {
         const params = {x: from.x, y: from.y};
-        return this.http.get<Position[]>(URL + 'possibleMoves', {params});
+        return this.http.get<Position[]>(URL + gameId + '/possibleMoves', {params: params as any});
     }
 
     private fromEventSource<T>(url: string): Observable<T> {

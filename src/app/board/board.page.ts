@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {ChessBoardService} from '../chess-board.service';
+import {GameService} from '../game.service';
 import {catchError, filter, map, startWith, switchMap} from 'rxjs/operators';
-import {combineLatest, merge, of, Subject} from 'rxjs';
+import {BehaviorSubject, combineLatest, of, Subject} from 'rxjs';
 import {Color, Position} from '../model';
 
 @Component({
@@ -11,66 +11,51 @@ import {Color, Position} from '../model';
 })
 export class BoardPage implements OnInit {
 
-    constructor(private boardService: ChessBoardService) {
+    constructor(private gameService: GameService) {
     }
 
-    colorDebug: Color = 'WHITE';
+    currentTurn: Color = 'WHITE'; // only for testing
 
     private selectedPosition: Position;
 
-    private moveSubject = new Subject<{ from: Position, to: Position }>();
-
     private selectPositionSubject = new Subject<Position>();
 
-    private board$ = merge(
-        this.moveSubject.pipe(
-            switchMap(({from, to}) => this.boardService.move(this.colorDebug, from, to).pipe(
-                catchError((error, caught) => {
-                    console.error(error.error.message);
-                    return of(undefined);
-                })
-            )),
-        ),
-        this.boardService.board$,
-    ).pipe(
-        filter(board => !!board),
-        map(board => {
-                const matrix = new Array(8);
-                for (let i = 0; i < 8; i++) {
-                    matrix[i] = new Array(8);
-                }
-                for (const piece of board.pieces) {
-                    matrix[piece.position.y][piece.position.x] = piece;
-                }
-                return matrix;
-            }
-        )
-    );
+    game$ = this.gameService.game$;
+
+    private matrix$ = this.game$.pipe(map(game => game.board.asMatrix))
 
     private possibleMovesForSelectedPosition$ = this.selectPositionSubject.pipe(
         switchMap(pos => {
             if (this.selectedPosition) {
-                this.moveSubject.next({from: this.selectedPosition, to: pos});
+                this.move(this.selectedPosition, pos);
                 this.selectedPosition = null;
                 return of([]);
             } else {
                 this.selectedPosition = pos;
-                return this.boardService.possibleMoves(pos);
+                return this.gameService.possibleMoves('1', pos);
             }
         }),
         startWith([])
     );
 
-    boardAndPossibleMoves$ = combineLatest([this.board$, this.possibleMovesForSelectedPosition$]);
-    toggleColor = () =>  this.colorDebug = this.colorDebug === 'WHITE' ? 'BLACK' : 'WHITE';
+    matrixAndPossibleMoves$ = combineLatest([this.matrix$, this.possibleMovesForSelectedPosition$]);
 
     ngOnInit() {
-
+        this.game$.subscribe(game => this.currentTurn = game.turn);
     }
 
     selectPosition(x: number, y: number) {
         const pos = {x, y};
         this.selectPositionSubject.next(pos);
+    }
+
+    move(from: Position, to: Position) {
+        this.gameService.applyMove('1', {id: '1', color: this.currentTurn}, from, to).pipe(
+            catchError(err => {
+                console.error(err.error.message);
+                return of(null)
+            })
+        ).subscribe();
     }
 
     contains(haystack: Position[], needle: Position) {
