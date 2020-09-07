@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {GameService} from '../game.service';
-import {catchError, filter, map, startWith, switchMap} from 'rxjs/operators';
-import {BehaviorSubject, combineLatest, of, Subject} from 'rxjs';
+import {catchError, map, startWith, switchMap} from 'rxjs/operators';
+import {combineLatest, of, Subject} from 'rxjs';
 import {Color, Position} from '../model';
+import {ToastController} from "@ionic/angular";
 
 @Component({
     selector: 'app-board',
@@ -11,7 +12,7 @@ import {Color, Position} from '../model';
 })
 export class BoardPage implements OnInit {
 
-    constructor(private gameService: GameService) {
+    constructor(private gameService: GameService, private toastController: ToastController) {
     }
 
     currentTurn: Color = 'WHITE'; // only for testing
@@ -32,10 +33,10 @@ export class BoardPage implements OnInit {
                 return of([]);
             } else {
                 this.selectedPosition = pos;
-                return this.gameService.possibleMoves('1', pos);
+                return this.gameService.possibleMoves('1', this.currentTurn, pos)
             }
         }),
-        startWith([])
+        startWith([]),
     );
 
     matrixAndPossibleMoves$ = combineLatest([this.matrix$, this.possibleMovesForSelectedPosition$]);
@@ -52,7 +53,11 @@ export class BoardPage implements OnInit {
     move(from: Position, to: Position) {
         this.gameService.applyMove('1', {id: '1', color: this.currentTurn}, from, to).pipe(
             catchError(err => {
-                console.error(err.error.message);
+                this.toastController.create({
+                    message: err.error.message,
+                    duration: 3000,
+                    color: 'danger'
+                }).then(toast => toast.present());
                 return of(null)
             })
         ).subscribe();

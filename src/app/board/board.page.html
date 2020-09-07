@@ -14,9 +14,13 @@
             </div>
         </ng-container>
     </div>
-    <div *ngIf="game$ | async as game" style="font-size: 20px">
+    <div *ngIf="game$ | async as game" style="font-size: 40px">
     turn: {{game.turn}} |
     winner: {{game.winner || 'NONE' }} |
-    draw: {{game.draw}}
+    draw: {{game.draw}} |
+    check: {{game.check || 'NONE' }}
     </div>
+
+    <ion-button (click)="gameService.undoMove('1').subscribe()"><--</ion-button>
+    <ion-button (click)="gameService.redoMove('1').subscribe()">--></ion-button>
 </ion-content>

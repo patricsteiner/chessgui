@@ -7,6 +7,7 @@ export interface Game {
     turn: Color;
     winner?: Color;
     draw?: Boolean;
+    check?: Color;
     board: ChessBoard;
 }
 
@@ -22,7 +23,9 @@ export interface ChessBoard {
 }
 
 export interface Piece {
+    id: string;
     type: string;
+    moveCount: number;
     char: string;
     color: Color;
     unicodeSymbol: string;

@@ -1,7 +1,7 @@
 import {Injectable, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Game, Player, Position} from './model';
-import {Observable} from 'rxjs';
+import {Color, Game, Player, Position} from './model';
+import {Observable, of} from 'rxjs';
 import {shareReplay} from "rxjs/operators";
 
 const URL = 'http://localhost:8080/game/';
@@ -20,9 +20,17 @@ export class GameService {
         return this.http.post<Game>(URL + gameId, {player, from, to});
     }
 
-    possibleMoves(gameId: string, from: Position): Observable<Position[]> {
-        const params = {x: from.x, y: from.y};
+    possibleMoves(gameId: string, color: Color, from: Position): Observable<Position[]> {
+        const params = {color, x: from.x, y: from.y};
         return this.http.get<Position[]>(URL + gameId + '/possibleMoves', {params: params as any});
+    }
+
+    undoMove(gameId: string): Observable<Game> {
+        return this.http.post<Game>(URL + gameId + '/undo',{});
+    }
+
+    redoMove(gameId: string): Observable<Game> {
+        return this.http.post<Game>(URL + gameId + '/redo',{});
     }
 
     private fromEventSource<T>(url: string): Observable<T> {
