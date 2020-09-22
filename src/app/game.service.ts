@@ -1,7 +1,7 @@
 import {Injectable, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Color, Game, Player, Position} from './model';
-import {Observable, of} from 'rxjs';
+import {Game, GameAndTokens, Position} from './model';
+import {Observable} from 'rxjs';
 import {shareReplay} from "rxjs/operators";
 
 const URL = 'http://localhost:8080/game/';
@@ -11,26 +11,35 @@ const URL = 'http://localhost:8080/game/';
 })
 export class GameService {
 
-    game$ = this.fromEventSource<Game>(URL + '1').pipe(shareReplay(1));
-
     constructor(private http: HttpClient, private zone: NgZone) {
     }
 
-    applyMove(gameId: string, player: Player, from: Position, to: Position): Observable<Game> {
-        return this.http.post<Game>(URL + gameId, {player, from, to});
+    createNewGame(): Observable<GameAndTokens> {
+        return this.http.post<GameAndTokens>(URL, {});
     }
 
-    possibleMoves(gameId: string, color: Color, from: Position): Observable<Position[]> {
-        const params = {color, x: from.x, y: from.y};
+    getGame$(gameId: string): Observable<Game> {
+        return this.fromEventSource<Game>(URL + gameId).pipe(
+            shareReplay({bufferSize: 1, refCount: true})
+        );
+    }
+
+    applyMove(gameId: string, colorToken: string, from: Position, to: Position): Observable<Game> {
+        const params = {colorToken};
+        return this.http.post<Game>(URL + gameId, {from, to}, {params: params as any});
+    }
+
+    possibleMoves(gameId: string, colorToken: string, from: Position): Observable<Position[]> {
+        const params = {colorToken, x: from.x, y: from.y};
         return this.http.get<Position[]>(URL + gameId + '/possibleMoves', {params: params as any});
     }
 
     undoMove(gameId: string): Observable<Game> {
-        return this.http.post<Game>(URL + gameId + '/undo',{});
+        return this.http.post<Game>(URL + gameId + '/undo', {});
     }
 
     redoMove(gameId: string): Observable<Game> {
-        return this.http.post<Game>(URL + gameId + '/redo',{});
+        return this.http.post<Game>(URL + gameId + '/redo', {});
     }
 
     private fromEventSource<T>(url: string): Observable<T> {

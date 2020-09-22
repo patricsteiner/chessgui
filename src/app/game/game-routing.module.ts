@@ -6,6 +6,10 @@ import { GamePage } from './game.page';
 const routes: Routes = [
   {
     path: '',
+    component: GamePage,
+  },
+  {
+    path: ':id',
     component: GamePage
   }
 ];
