@@ -1,10 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Chess</ion-title>
+    <ion-title>LumberChess</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <ion-button (click)="createNewGame()">NEW GAME</ion-button>
+
   <div *ngIf="matrixAndPossibleMoves$ | async as boardAndPossibleMoves" class="board">
     <ng-container *ngFor="let row of boardAndPossibleMoves[0]; let y = index">
       <div *ngFor="let piece of row; let x = index" (click)="selectPosition(x, y)" class="field"
@@ -22,9 +24,4 @@
     check: {{game.check || 'NONE' }}
   </div>
 
-  <ion-button (click)="gameService.undoMove('1').subscribe()"><--</ion-button>
-  <ion-button (click)="gameService.redoMove('1').subscribe()">--></ion-button>
-
-  <br>
-  <ion-button (click)="createNewGame()">NEW GAME</ion-button>
 </ion-content>

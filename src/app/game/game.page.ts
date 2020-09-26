@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {GameService} from "../game.service";
-import {NavController, ToastController} from "@ionic/angular";
+import {AlertController, NavController, ToastController} from "@ionic/angular";
 import {Position} from "../model";
 import {combineLatest, of, Subject} from "rxjs";
 import {catchError, filter, map, shareReplay, startWith, switchMap, take, takeUntil} from "rxjs/operators";
@@ -13,7 +13,7 @@ import {ActivatedRoute} from "@angular/router";
 })
 export class GamePage implements OnInit, OnDestroy {
 
-    constructor(public gameService: GameService, private toastController: ToastController, private navCtrl: NavController, private activatedRoute: ActivatedRoute) {
+    constructor(public gameService: GameService, private toastController: ToastController, private navCtrl: NavController, private activatedRoute: ActivatedRoute, private alertController: AlertController) {
     }
 
     colorToken$ = this.activatedRoute.queryParams.pipe(
@@ -49,7 +49,7 @@ export class GamePage implements OnInit, OnDestroy {
                 return of([]);
             } else {
                 this.selectedPosition = pos;
-                return this.gameService.possibleMoves(this.gameId, this.colorToken, pos).pipe(
+                return this.gameService.possibleMoves(this.gameId, pos).pipe(
                     catchError(() => of([]))
                 )
             }
@@ -71,8 +71,25 @@ export class GamePage implements OnInit, OnDestroy {
 
     async createNewGame() {
         const gameAndTokens = await this.gameService.createNewGame().pipe(take(1)).toPromise();
-        console.log(gameAndTokens)
         await this.navCtrl.navigateForward('/game/' + gameAndTokens.game.id + '?colorToken=' + gameAndTokens.whiteToken);
+
+        const blackUrl = window.location.href.replace(gameAndTokens.whiteToken, gameAndTokens.blackToken);
+        const alert = await this.alertController.create({
+            cssClass: 'alertDialog',
+            header: 'URL für di Kolleg',
+            inputs: [
+                {
+                    name: 'url',
+                    type: 'text',
+                    value: blackUrl,
+                },
+            ],
+            buttons: [
+                {
+                    text: 'Geilomatico',
+                }]
+        });
+        await alert.present();
     }
 
     selectPosition(x: number, y: number) {
