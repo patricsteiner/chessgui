@@ -1,8 +1,8 @@
 import {Injectable, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Game, GameAndTokens, Position} from './model';
-import {Observable} from 'rxjs';
-import {shareReplay} from "rxjs/operators";
+import {BehaviorSubject, Observable} from 'rxjs';
+import {filter, shareReplay, switchMap, tap} from "rxjs/operators";
 
 //const URL = 'http://localhost:8080/game/';
 const URL = 'https://chessenginex.herokuapp.com/game/';
@@ -19,12 +19,13 @@ export class GameService {
         return this.http.post<GameAndTokens>(URL, {});
     }
 
-    // TODO potential memory leak...
-    getGame$(gameId: string): Observable<Game> {
-        return this.fromEventSource<Game>(URL + gameId).pipe(
-            shareReplay({bufferSize: 1, refCount: true})
-        );
-    }
+    gameId$ = new BehaviorSubject<string>(null);
+
+    game$ = this.gameId$.pipe(
+        filter(id => !!id),
+        switchMap(id => this.fromEventSource<Game>(URL + id)),
+        shareReplay({bufferSize: 1, refCount: true}),
+    );
 
     applyMove(gameId: string, colorToken: string, from: Position, to: Position): Observable<Game> {
         const params = {colorToken};
@@ -37,7 +38,7 @@ export class GameService {
     }
 
     private fromEventSource<T>(url: string): Observable<T> {
-        return new Observable<any>(observer => {
+        return new Observable<T>(observer => {
             const eventSource = new EventSource(url);
             eventSource.onmessage = event => {
                 this.zone.run(() => {
@@ -49,6 +50,7 @@ export class GameService {
                     observer.error(error);
                 });
             };
+            return () => eventSource.close();
         });
     }
 

@@ -34,10 +34,7 @@ export class GamePage implements OnInit, OnDestroy {
 
     private selectPositionSubject = new Subject<Position>();
 
-    game$ = this.gameId$.pipe(
-        switchMap(id => this.gameService.getGame$(id)), // TODO need to unsubscribe, opens too many sse connections (i think) --> build a store or sth
-        shareReplay({bufferSize: 1, refCount: true})
-    );
+    game$ = this.gameService.game$;
 
     private matrix$ = this.game$.pipe(map(game => game.board.asMatrix))
 
@@ -60,7 +57,10 @@ export class GamePage implements OnInit, OnDestroy {
     matrixAndPossibleMoves$ = combineLatest([this.matrix$, this.possibleMovesForSelectedPosition$]);
 
     ngOnInit() {
-        this.gameId$.pipe(takeUntil(this.destroy$)).subscribe(gameId => this.gameId = gameId);
+        this.gameId$.pipe(takeUntil(this.destroy$)).subscribe(gameId => {
+            this.gameId = gameId;
+            this.gameService.gameId$.next(gameId);
+        });
         this.colorToken$.pipe(takeUntil(this.destroy$)).subscribe(colorToken => this.colorToken = colorToken);
     }
 
