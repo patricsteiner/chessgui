@@ -1,9 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {GameService} from "../game.service";
-import {AlertController, NavController, ToastController} from "@ionic/angular";
-import {Piece, Position} from "../model";
-import {combineLatest, Observable, of, Subject} from "rxjs";
-import {catchError, filter, map, shareReplay, startWith, switchMap, take, takeUntil} from "rxjs/operators";
+import {AlertController, NavController} from "@ionic/angular";
+import {Subject} from "rxjs";
+import {filter, map, take, takeUntil} from "rxjs/operators";
 import {ActivatedRoute} from "@angular/router";
 
 @Component({
@@ -13,7 +12,7 @@ import {ActivatedRoute} from "@angular/router";
 })
 export class GamePage implements OnInit, OnDestroy {
 
-    constructor(public gameService: GameService, private toastController: ToastController, private navCtrl: NavController, private activatedRoute: ActivatedRoute, private alertController: AlertController) {
+    constructor(public gameService: GameService, private navCtrl: NavController, private activatedRoute: ActivatedRoute, private alertController: AlertController) {
     }
 
     colorToken$ = this.activatedRoute.queryParams.pipe(
@@ -26,42 +25,14 @@ export class GamePage implements OnInit, OnDestroy {
         filter(id => !!id)
     );
 
-    colorToken: string;
-    gameId: string;
     destroy$ = new Subject();
 
     game$ = this.gameService.game$;
 
-    private selectedPosition: Position;
-
-    private selectPositionSubject = new Subject<Position>();
-
-    private matrix$: Observable<Piece[][]> = this.game$.pipe(map(game => game.board.asMatrix))
-
-    private possibleMovesForSelectedPosition$: Observable<Position[]> = this.selectPositionSubject.pipe(
-        switchMap(pos => {
-            if (this.selectedPosition) {
-                this.move(this.selectedPosition, pos);
-                this.selectedPosition = null;
-                return of([]);
-            } else {
-                this.selectedPosition = pos;
-                return this.gameService.possibleMoves(this.gameId, pos).pipe(
-                    catchError(() => of([]))
-                )
-            }
-        }),
-        startWith([]),
-    );
-
-    matrixAndPossibleMoves$ = combineLatest([this.matrix$, this.possibleMovesForSelectedPosition$]);
-
     ngOnInit() {
         this.gameId$.pipe(takeUntil(this.destroy$)).subscribe(gameId => {
-            this.gameId = gameId;
-            this.gameService.loadGame(gameId);
+            this.gameService.gameId$.next(gameId);
         });
-        this.colorToken$.pipe(takeUntil(this.destroy$)).subscribe(colorToken => this.colorToken = colorToken);
     }
 
     ngOnDestroy() {
@@ -90,28 +61,6 @@ export class GamePage implements OnInit, OnDestroy {
                 }]
         });
         await alert.present();
-    }
-
-    selectPosition(x: number, y: number) {
-        const pos = {x, y};
-        this.selectPositionSubject.next(pos);
-    }
-
-    async move(from: Position, to: Position) {
-        this.gameService.applyMove(this.gameId, this.colorToken, from, to).pipe(
-            catchError(err => {
-                this.toastController.create({
-                    message: err.error.message,
-                    duration: 2000,
-                    color: 'danger'
-                }).then(toast => toast.present());
-                return of(null)
-            })
-        ).subscribe();
-    }
-
-    contains(haystack: Position[], needle: Position) {
-        return haystack.findIndex(pos => pos.x === needle.x && pos.y === needle.y) !== -1;
     }
 
 }

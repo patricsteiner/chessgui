@@ -2,27 +2,4 @@ ion-content {
   font: 80px monospace;
 }
 
-.board {
-  margin: auto;
-  border: 50px solid #502200;
-  display: inline-grid;
-  grid-gap: 0;
-  grid-template-columns: repeat(8, 100px);
-  grid-template-rows: repeat(8, 100px);;
-  user-select: none;
-}
 
-.field {
-  text-align: center;
-  background: #ffcb97;
-  &.odd {
-    background: #b0693a;
-  }
-  &.full {
-     cursor: pointer;
-  }
-  &.possibleMove {
-    cursor: pointer;
-    background: #066d30;
-  }
-}

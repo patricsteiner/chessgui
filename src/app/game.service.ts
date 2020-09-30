@@ -1,7 +1,7 @@
 import {Injectable, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Game, GameAndTokens, Position} from './model';
-import {Observable, ReplaySubject} from 'rxjs';
+import {BehaviorSubject, Observable, ReplaySubject} from 'rxjs';
 import {filter, shareReplay, switchMap} from "rxjs/operators";
 
 //const URL = 'http://localhost:8080/game/';
@@ -15,28 +15,26 @@ export class GameService {
     constructor(private http: HttpClient, private zone: NgZone) {
     }
 
-    loadGameIdSubject = new ReplaySubject<string>();
+    gameId$ = new BehaviorSubject<string>(null);
 
-    game$ = this.loadGameIdSubject.pipe(
+    game$ = this.gameId$.pipe(
         filter(id => !!id),
         switchMap(id => this.fromEventSource<Game>(URL + id)),
         shareReplay({bufferSize: 1, refCount: true}),
     );
 
-    loadGame(gameId: string) {
-        this.loadGameIdSubject.next(gameId);
-    }
-
     createNewGame(): Observable<GameAndTokens> {
         return this.http.post<GameAndTokens>(URL, {});
     }
 
-    applyMove(gameId: string, colorToken: string, from: Position, to: Position): Observable<Game> {
+    applyMove(colorToken: string, from: Position, to: Position): Observable<Game> {
+        const gameId = this.gameId$.getValue();
         const params = {colorToken};
         return this.http.post<Game>(URL + gameId, {from, to}, {params: params as any});
     }
 
-    possibleMoves(gameId: string, from: Position): Observable<Position[]> {
+    possibleMoves(from: Position): Observable<Position[]> {
+        const gameId = this.gameId$.getValue();
         const params = {x: from.x, y: from.y};
         return this.http.get<Position[]>(URL + gameId + '/possibleMoves', {params: params as any});
     }

@@ -8,6 +8,7 @@ import { GamePageRoutingModule } from './game-routing.module';
 
 import { GamePage } from './game.page';
 import {PieceComponent} from "./piece/piece.component";
+import {BoardComponent} from "./board/board.component";
 
 @NgModule({
   imports: [
@@ -16,6 +17,6 @@ import {PieceComponent} from "./piece/piece.component";
     IonicModule,
     GamePageRoutingModule
   ],
-  declarations: [GamePage, PieceComponent]
+  declarations: [GamePage, PieceComponent, BoardComponent]
 })
 export class GamePageModule {}
