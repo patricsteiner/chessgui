@@ -1,8 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {GameService} from "../game.service";
 import {AlertController, NavController, ToastController} from "@ionic/angular";
-import {Position} from "../model";
-import {combineLatest, of, Subject} from "rxjs";
+import {Piece, Position} from "../model";
+import {combineLatest, Observable, of, Subject} from "rxjs";
 import {catchError, filter, map, shareReplay, startWith, switchMap, take, takeUntil} from "rxjs/operators";
 import {ActivatedRoute} from "@angular/router";
 
@@ -30,15 +30,15 @@ export class GamePage implements OnInit, OnDestroy {
     gameId: string;
     destroy$ = new Subject();
 
+    game$ = this.gameService.game$;
+
     private selectedPosition: Position;
 
     private selectPositionSubject = new Subject<Position>();
 
-    game$ = this.gameService.game$;
+    private matrix$: Observable<Piece[][]> = this.game$.pipe(map(game => game.board.asMatrix))
 
-    private matrix$ = this.game$.pipe(map(game => game.board.asMatrix))
-
-    private possibleMovesForSelectedPosition$ = this.selectPositionSubject.pipe(
+    private possibleMovesForSelectedPosition$: Observable<Position[]> = this.selectPositionSubject.pipe(
         switchMap(pos => {
             if (this.selectedPosition) {
                 this.move(this.selectedPosition, pos);
@@ -59,7 +59,7 @@ export class GamePage implements OnInit, OnDestroy {
     ngOnInit() {
         this.gameId$.pipe(takeUntil(this.destroy$)).subscribe(gameId => {
             this.gameId = gameId;
-            this.gameService.gameId$.next(gameId);
+            this.gameService.loadGame(gameId);
         });
         this.colorToken$.pipe(takeUntil(this.destroy$)).subscribe(colorToken => this.colorToken = colorToken);
     }

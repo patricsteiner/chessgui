@@ -1,8 +1,8 @@
 import {Injectable, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Game, GameAndTokens, Position} from './model';
-import {BehaviorSubject, Observable} from 'rxjs';
-import {filter, shareReplay, switchMap, tap} from "rxjs/operators";
+import {Observable, ReplaySubject} from 'rxjs';
+import {filter, shareReplay, switchMap} from "rxjs/operators";
 
 //const URL = 'http://localhost:8080/game/';
 const URL = 'https://chessenginex.herokuapp.com/game/';
@@ -15,17 +15,21 @@ export class GameService {
     constructor(private http: HttpClient, private zone: NgZone) {
     }
 
-    createNewGame(): Observable<GameAndTokens> {
-        return this.http.post<GameAndTokens>(URL, {});
-    }
+    loadGameIdSubject = new ReplaySubject<string>();
 
-    gameId$ = new BehaviorSubject<string>(null);
-
-    game$ = this.gameId$.pipe(
+    game$ = this.loadGameIdSubject.pipe(
         filter(id => !!id),
         switchMap(id => this.fromEventSource<Game>(URL + id)),
         shareReplay({bufferSize: 1, refCount: true}),
     );
+
+    loadGame(gameId: string) {
+        this.loadGameIdSubject.next(gameId);
+    }
+
+    createNewGame(): Observable<GameAndTokens> {
+        return this.http.post<GameAndTokens>(URL, {});
+    }
 
     applyMove(gameId: string, colorToken: string, from: Position, to: Position): Observable<Game> {
         const params = {colorToken};

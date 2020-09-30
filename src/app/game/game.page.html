@@ -11,8 +11,6 @@
     <ng-container *ngFor="let row of boardAndPossibleMoves[0]; let y = index">
       <div *ngFor="let piece of row; let x = index" (click)="selectPosition(x, y)" class="field"
            [class.possibleMove]="contains(boardAndPossibleMoves[1], {x:x,y:y})" [class.odd]="(x+y) % 2 === 1" [class.full]="!!piece">
-        <!--           [class.empty]="!piece?.unicodeSymbol" [class.white]="piece?.color === 'WHITE'" [class.black]="piece?.color === 'BLACK'"-->
-        <!--        {{piece?.unicodeSymbol || '\u2022' }}-->
         <app-piece *ngIf="piece" [color]="piece?.color" [type]="piece?.type"></app-piece>
       </div>
     </ng-container>
