@@ -1,19 +1,29 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>LumberChess</ion-title>
-  </ion-toolbar>
+    <ion-toolbar>
+        <ion-buttons slot="end">
+            <ion-button slot="start" (click)="createNewGame()" color="primary">New Game</ion-button>
+        </ion-buttons>
+        <ion-title>LumberChess</ion-title>
+    </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-button (click)="createNewGame()">NEW GAME</ion-button>
+    <div *ngIf="game$ | async as game">
+        <ion-chip>
+            <ion-icon name="person" [style.color]="game.turn == 'WHITE' ? 'white': 'black'"></ion-icon>
+            <ion-label>{{game.turn}}'s turn</ion-label>
+        </ion-chip>
+        <ion-chip *ngIf="game.check">
+            <ion-icon name="alert-circle" color="warning"></ion-icon>
+            <ion-label>{{game.check}} is check</ion-label>
+        </ion-chip>
+        <ion-chip *ngIf="game.winner" color="danger">
+            <ion-label>Game Over! Winner: {{game.winner}}</ion-label>
+        </ion-chip>
+        <ion-chip *ngIf="game.draw" color="danger">
+            <ion-label>Game Over! Draw</ion-label>
+        </ion-chip>
+    </div>
 
-  <app-board [colorToken]="colorToken$ | async"></app-board>
-
-  <div *ngIf="game$ | async as game" style="font-size: 40px">
-    turn: {{game.turn}} |
-    winner: {{game.winner || 'NONE' }} |
-    draw: {{game.draw}} |
-    check: {{game.check || 'NONE' }}
-  </div>
-
+    <app-board [colorToken]="colorToken$ | async"></app-board>
 </ion-content>

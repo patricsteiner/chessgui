@@ -1,24 +1,47 @@
+// need container for 1:1 aspect ratio, see https://stackoverflow.com/questions/5445491/height-equal-to-dynamic-width-css-fluid-layout
+#container {
+  display: inline-block;
+  position: relative;
+  width: inherit;
+}
+
+#container:before {
+  content: "";
+  display: block;
+  margin-top: 100%;
+}
+
 .board {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   border: 10px solid #502200;
   display: inline-grid;
   grid-gap: 0;
-  grid-template-columns: repeat(8, minmax(50px, 1fr));
-  grid-template-rows: repeat(8, minmax(50px, 1fr));
+  grid-template-columns: repeat(8, 1fr);
   user-select: none;
-  overflow: auto;
-direction: ltr;}
 
-.field {
-  text-align: center;
-  background: #ffcb97;
-  &.odd {
-    background: #b0693a;
-  }
-  &.full {
-    cursor: pointer;
-  }
-  &.possibleMove {
-    cursor: pointer;
-    background: #066d30;
+  .field {
+    background: #ffcb97;
+
+    &.odd {
+      background: #b0693a;
+    }
+
+    &.full {
+      cursor: pointer;
+    }
+
+    &.selected {
+      background: #013a7b;
+    }
+
+    &.possibleMove {
+      cursor: pointer;
+      background: #066d30;
+    }
   }
 }
+

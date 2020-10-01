@@ -23,7 +23,7 @@ export class BoardComponent implements OnInit {
 
     game$ = this.gameService.game$;
 
-    private selectedPosition: Position;
+    selectedPosition: Position;
 
     private selectPositionSubject = new Subject<Position>();
 
