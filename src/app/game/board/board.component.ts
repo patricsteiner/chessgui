@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Piece, Position} from "../../model";
-import {catchError, map, startWith, switchMap} from "rxjs/operators";
+import {catchError, map, startWith, switchMap, tap} from "rxjs/operators";
 import {combineLatest, Observable, of, Subject} from "rxjs";
 import {GameService} from "../../game.service";
 import {ToastController} from "@ionic/angular";
+import {SoundService} from "../sound.service";
 
 @Component({
     selector: 'app-board',
@@ -15,7 +16,7 @@ export class BoardComponent implements OnInit {
     @Input()
     private colorToken: string;
 
-    constructor(private gameService: GameService, private toastController: ToastController,) {
+    constructor(private gameService: GameService, private toastController: ToastController, private soundService: SoundService) {
     }
 
     ngOnInit() {
@@ -48,12 +49,16 @@ export class BoardComponent implements OnInit {
     matrixAndPossibleMoves$ = combineLatest([this.matrix$, this.possibleMovesForSelectedPosition$]);
 
     selectPosition(x: number, y: number) {
-        const pos = {x, y};
+        const pos = {x, y} as Position;
         this.selectPositionSubject.next(pos);
     }
 
     async move(from: Position, to: Position) {
         this.gameService.applyMove(this.colorToken, from, to).pipe(
+            tap(game => {
+                const piece = game.board.pieces.find(piece => piece.position.x === to.x && piece.position.y === to.y);
+                // this.soundService.moveSound(piece);
+            }),
             catchError(err => {
                 this.toastController.create({
                     message: err.error.message,

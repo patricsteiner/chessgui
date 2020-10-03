@@ -1,11 +1,12 @@
 import {Injectable, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Game, GameAndTokens, Position} from './model';
-import {BehaviorSubject, Observable, ReplaySubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {filter, shareReplay, switchMap} from "rxjs/operators";
 
-//const URL = 'http://localhost:8080/game/';
-const URL = 'https://chessenginex.herokuapp.com/game/';
+const URL = 'http://localhost:8080/game/';
+
+// const URL = 'https://chessenginex.herokuapp.com/game/';
 
 @Injectable({
     providedIn: 'root'
@@ -23,8 +24,8 @@ export class GameService {
         shareReplay({bufferSize: 1, refCount: true}),
     );
 
-    createNewGame(): Observable<GameAndTokens> {
-        return this.http.post<GameAndTokens>(URL, {});
+    createNewGame(requireColorTokens: boolean): Observable<GameAndTokens> {
+        return this.http.post<GameAndTokens>(URL, {requireColorTokens});
     }
 
     applyMove(colorToken: string, from: Position, to: Position): Observable<Game> {

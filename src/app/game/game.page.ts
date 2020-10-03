@@ -41,7 +41,7 @@ export class GamePage implements OnInit, OnDestroy {
     }
 
     async createNewGame() {
-        const gameAndTokens = await this.gameService.createNewGame().pipe(take(1)).toPromise();
+        const gameAndTokens = await this.gameService.createNewGame(false).pipe(take(1)).toPromise();
         await this.navCtrl.navigateForward('/game/' + gameAndTokens.game.id + '?colorToken=' + gameAndTokens.whiteToken);
 
         const blackUrl = window.location.href.replace(gameAndTokens.whiteToken, gameAndTokens.blackToken);
