@@ -2,7 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Piece, Position} from "../../model";
 import {catchError, map, startWith, switchMap, tap} from "rxjs/operators";
 import {combineLatest, Observable, of, Subject} from "rxjs";
-import {GameService} from "../../game.service";
+import {GameService} from "../game.service";
 import {ToastController} from "@ionic/angular";
 import {SoundService} from "../sound.service";
 
@@ -58,14 +58,6 @@ export class BoardComponent implements OnInit {
             tap(game => {
                 const piece = game.board.pieces.find(piece => piece.position.x === to.x && piece.position.y === to.y);
                 // this.soundService.moveSound(piece);
-            }),
-            catchError(err => {
-                this.toastController.create({
-                    message: err.error.message,
-                    duration: 2000,
-                    color: 'danger'
-                }).then(toast => toast.present());
-                return of(null)
             })
         ).subscribe();
     }

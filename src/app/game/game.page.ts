@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {GameService} from "../game.service";
+import {GameService} from "./game.service";
 import {AlertController, NavController} from "@ionic/angular";
 import {Subject} from "rxjs";
 import {filter, map, take, takeUntil} from "rxjs/operators";
@@ -41,26 +41,30 @@ export class GamePage implements OnInit, OnDestroy {
     }
 
     async createNewGame() {
-        const gameAndTokens = await this.gameService.createNewGame(false).pipe(take(1)).toPromise();
+        const requireColorTokens = false; // TODO make UI option
+        const gameAndTokens = await this.gameService.createNewGame(requireColorTokens).pipe(take(1)).toPromise();
         await this.navCtrl.navigateForward('/game/' + gameAndTokens.game.id + '?colorToken=' + gameAndTokens.whiteToken);
 
-        const blackUrl = window.location.href.replace(gameAndTokens.whiteToken, gameAndTokens.blackToken);
-        const alert = await this.alertController.create({
-            cssClass: 'alertDialog',
-            header: 'URL für di Kolleg',
-            inputs: [
-                {
-                    name: 'url',
-                    type: 'text',
-                    value: blackUrl,
-                },
-            ],
-            buttons: [
-                {
-                    text: 'Geilomatico',
-                }]
-        });
-        await alert.present();
+        if (requireColorTokens) {
+            const blackUrl = window.location.href.replace(gameAndTokens.whiteToken, gameAndTokens.blackToken);
+            const alert = await this.alertController.create({
+                cssClass: 'alertDialog',
+                header: 'URL für di Kolleg',
+                inputs: [
+                    {
+                        name: 'url',
+                        type: 'text',
+                        value: blackUrl,
+                    },
+                ],
+                buttons: [
+                    {
+                        text: 'Geilomatico',
+                    }
+                ]
+            });
+            await alert.present();
+        }
     }
 
 }

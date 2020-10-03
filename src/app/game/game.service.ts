@@ -1,12 +1,11 @@
 import {Injectable, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Game, GameAndTokens, Position} from './model';
+import {Game, GameAndTokens, Position} from '../model';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {filter, shareReplay, switchMap} from "rxjs/operators";
 
-const URL = 'http://localhost:8080/game/';
-
-// const URL = 'https://chessenginex.herokuapp.com/game/';
+// const URL = 'http://localhost:8080/game/';
+const URL = 'https://chessenginex.herokuapp.com/game/';
 
 @Injectable({
     providedIn: 'root'
