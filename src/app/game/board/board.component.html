@@ -1,11 +1,12 @@
 <div id="container">
-    <div *ngIf="matrixAndPossibleMoves$ | async as boardAndPossibleMoves" class="board">
-        <ng-container *ngFor="let row of boardAndPossibleMoves[0]; let y = index">
+    <div *ngIf="matrixAndPossibleMoves$ | async as matrixAndPossibleMoves" class="board">
+        <ng-container *ngFor="let row of matrixAndPossibleMoves[0]; let y = index">
             <div *ngFor="let piece of row; let x = index" (click)="selectPosition(x, y)" class="field"
-                 [class.possibleMove]="contains(boardAndPossibleMoves[1], {x:x,y:y})"
+                 [class.possibleMove]="contains(matrixAndPossibleMoves[1], {x:x,y:y})"
                  [class.odd]="(x+y) % 2 === 1"
                  [class.full]="!!piece"
-                 [class.selected]="selectedPosition && selectedPosition.x === x && selectedPosition.y === y">
+                 [class.selected]="selectedPosition && selectedPosition.x === x && selectedPosition.y === y"
+                 [class.latestMove]="!!latestMove && (latestMove.from.x === x && latestMove.from.y === y || latestMove.to.x === x && latestMove.to.y === y)">
                 <app-piece *ngIf="piece" [color]="piece?.color" [type]="piece?.type"></app-piece>
             </div>
         </ng-container>

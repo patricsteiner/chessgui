@@ -13,6 +13,7 @@ export interface Game {
     draw?: Boolean;
     check?: Color;
     board: ChessBoard;
+    latestMove?: {from: Position, to: Position};
 }
 
 export interface ChessBoard {
